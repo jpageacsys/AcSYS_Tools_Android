@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="hours_size">
+        <item name="android:layout_width">@dimen/hours_edit_width</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    <style name="hours_text" parent="@style/hours_size">
+        <item name="android:inputType">numberDecimal</item>
+        <item name="android:importantForAutofill">no</item>
+        <item name="android:imeOptions">actionDone</item>
+    </style>
+    <style name="job_week_spinner">
+        <item name="android:layout_width">@dimen/spinner_width</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+    <style name="job_week_header" parent="job_week_spinner">
+        <item name="android:paddingStart">@dimen/header_padding</item>
+        <item name="android:paddingEnd">@dimen/header_padding</item>
+    </style>
+    <style name="toolbar_button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="tint">@color/main_500</item>
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+        <item name="android:padding">10dp</item>
+    </style>
+</resources>

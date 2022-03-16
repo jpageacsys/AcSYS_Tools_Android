@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <HorizontalScrollView
+        android:id="@+id/header_scroll"
+        android:scrollbars="none"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="@string/project"
+                style="@style/job_week_header"/>
+            <TextView
+                android:text="@string/task"
+                style="@style/job_week_header"/>
+            <TextView
+                android:text="@string/sun"
+                style="@style/hours_size"/>
+            <TextView
+                android:text="@string/mon"
+                style="@style/hours_size"/>
+            <TextView
+                android:text="@string/tue"
+                style="@style/hours_size"/>
+            <TextView
+                android:text="@string/wed"
+                style="@style/hours_size"/>
+            <TextView
+                android:text="@string/thu"
+                style="@style/hours_size"/>
+            <TextView
+                android:text="@string/fri"
+                style="@style/hours_size"/>
+            <TextView
+                android:text="@string/sat"
+                style="@style/hours_size"/>
+        </LinearLayout>
+
+    </HorizontalScrollView>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/dateButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header_scroll"/>
+
+    <Button
+        android:id="@+id/dateButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Date"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/forwardButton"
+        app:layout_constraintStart_toEndOf="@+id/backButton" />
+
+    <ImageButton
+        android:id="@+id/forwardButton"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/ic_baseline_arrow_forward_24"
+        android:contentDescription="@string/back"
+        style="@style/toolbar_button"/>
+
+    <ImageButton
+        android:id="@+id/backButton"
+        android:src="@drawable/ic_baseline_arrow_back_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:contentDescription="@string/forward"
+        style="@style/toolbar_button"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
