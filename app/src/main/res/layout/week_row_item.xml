@@ -9,12 +9,10 @@
     <Spinner
         android:id="@+id/spinner_task"
         style="@style/job_week_spinner" />
-    <EditText
-        android:id="@+id/sundayEditText"
-        style="@style/hours_text" />
+
     <EditText
         android:id="@+id/mondayEditText"
-        style="@style/hours_text" />
+        style="@style/hours_text"/>
     <EditText
         android:id="@+id/tuesdayEditText"
         style="@style/hours_text" />
@@ -29,5 +27,8 @@
         style="@style/hours_text" />
     <EditText
         android:id="@+id/saturdayEditText"
+        style="@style/hours_text" />
+    <EditText
+        android:id="@+id/sundayEditText"
         style="@style/hours_text" />
 </LinearLayout>

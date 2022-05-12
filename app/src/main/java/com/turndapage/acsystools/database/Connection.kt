@@ -1,6 +1,16 @@
 package com.turndapage.acsystools.database
+import android.R.attr.port
+import android.os.StrictMode
 import android.util.Log
 import com.turndapage.acsystools.models.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.io.IOException
+import java.net.InetSocketAddress
+import java.net.Socket
+import java.net.SocketAddress
 import java.sql.*
 import java.sql.Connection
 import java.sql.Date
@@ -9,11 +19,11 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.math.cos
 
-class Connection() {
-    private val ip = "192.168.50.10" // your database server ip
+
+class Connection(val connectionListener: ConnectionListener) {
+    private val localIP = "192.168.50.10" // your database server ip
+    private val remoteIP = "98.187.121.131" // your database server ip
     private val db = "acsys_tools" // your database name
     private val username = "Admin" // your database username
     private val password = "B34nc4t?" // your database password
@@ -61,9 +71,68 @@ class Connection() {
     private var connection: Connection? = null
 
     init {
-        val dbURL = "jdbc:jtds:sqlserver://$ip:1433/$db"
-        Class.forName("net.sourceforge.jtds.jdbc.Driver")
-        this.connection = DriverManager.getConnection(dbURL,username,password)
+        checkForAddress(localIP, object: PingListener {
+            override fun onResponse() {
+                connect(localIP)
+            }
+
+            override fun onTimeout() {
+                // handle timeout
+            }
+        })
+        checkForAddress(remoteIP, object: PingListener {
+            override fun onResponse() {
+                connect(remoteIP)
+            }
+
+            override fun onTimeout() {
+                // handle timeout
+            }
+        })
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun connect(ip: String) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+            StrictMode.setThreadPolicy(policy)
+            val dbURL = "jdbc:jtds:sqlserver://$ip:1433/$db"
+            Class.forName("net.sourceforge.jtds.jdbc.Driver")
+            connection = DriverManager.getConnection(dbURL, username, password)
+            connectionListener.onConnected()
+        }.start()
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun checkForAddress(ip: String, pingListener: PingListener) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+            StrictMode.setThreadPolicy(policy)
+
+            try {
+                val socketAddress: SocketAddress = InetSocketAddress(ip, 1433)
+                // Create an unbound socket
+                val sock = Socket()
+
+                // This method will block no more than timeoutMs.
+                // If the timeout occurs, SocketTimeoutException is thrown.
+                val timeoutMs = 5000 // 5 seconds
+                sock.connect(socketAddress, timeoutMs)
+                pingListener.onResponse()
+            } catch (e: IOException) {
+                // Handle exception
+                pingListener.onTimeout()
+            }
+        }
+    }
+
+    interface ConnectionListener {
+        fun onConnected()
+    }
+
+    interface PingListener {
+        fun onResponse()
+        fun onTimeout()
     }
 
     fun getProjects() : ArrayList<Project> {
@@ -152,7 +221,7 @@ class Connection() {
                         "$JOB_DATE," +
                         "$JOB_COST " +
                         "FROM $TABLE_JOB " +
-                        "WHERE $JOB_USER = ${CurrentUser?.id} " +
+                        "WHERE $JOB_USER = ${CurrentUser.id} " +
                         "AND $JOB_DATE BETWEEN '$dateString' AND DATEADD(day,6,'$dateString')")
 
             Log.d("Debug", "Added jobs for date $dateString")
@@ -224,7 +293,7 @@ class Connection() {
                     "${project.id}," +
                     "${taskCode.id}," +
                     "$hours," +
-                    "'${dateFormatter.format(date)}'," +
+                    "'${dateFormatter.format(date.plusDays(-1))}'," +
                     "$cost)", Statement.RETURN_GENERATED_KEYS)
 
             statement?.executeUpdate()
@@ -245,33 +314,18 @@ class Connection() {
 
     fun updateJob(job: Job) {
         var statement: Statement? = null
-        var resultSet: ResultSet? = null
 
         try {
             statement = connection?.createStatement()
-            resultSet = statement?.executeQuery("SELECT $JOB_ID," +
-                    "$JOB_PROJECT," +
-                    "$JOB_TASK_CODE," +
-                    "$JOB_HOURS," +
-                    "$JOB_COST " +
-                    "FROM $TABLE_JOB " +
-                    "WHERE $JOB_ID = ${job.id}")
-            while (resultSet?.next() == true) {
-                with(resultSet) {
-                    updateInt(JOB_PROJECT, job.project.id)
-                    updateInt(JOB_TASK_CODE, job.taskCode.id)
-                    updateDouble(JOB_HOURS, job.hours)
-                    updateDouble(JOB_COST, job.hours * CurrentUser.hourlyRate)
-                    updateRow()
-                }
-            }
+            statement?.executeUpdate("UPDATE $TABLE_JOB " +
+                    "SET $JOB_PROJECT = ${job.project.id}," +
+                    "$JOB_TASK_CODE = ${job.taskCode.id}," +
+                    "$JOB_HOURS = ${job.hours}," +
+                    "$JOB_COST = ${job.hours * CurrentUser.hourlyRate} " +
+                    "WHERE $JOB_ID = ${job.id}");
         } catch (ex: SQLException) {
             ex.printStackTrace()
         } finally {
-            try {
-                resultSet?.close()
-            } catch (sqlEx: SQLException) {
-            }
             try {
                 statement?.close()
             } catch (sqlEx: SQLException) {

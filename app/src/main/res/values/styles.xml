@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="hours_size">
+        <item name="android:textAlignment">center</item>
         <item name="android:layout_width">@dimen/hours_edit_width</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
     <style name="hours_text" parent="@style/hours_size">
+        <item name="android:textAlignment">center</item>
         <item name="android:inputType">numberDecimal</item>
         <item name="android:importantForAutofill">no</item>
         <item name="android:imeOptions">actionDone</item>
@@ -14,6 +16,8 @@
         <item name="android:layout_height">match_parent</item>
     </style>
     <style name="job_week_header" parent="job_week_spinner">
+        <item name="android:textAlignment">center</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:paddingStart">@dimen/header_padding</item>
         <item name="android:paddingEnd">@dimen/header_padding</item>
     </style>

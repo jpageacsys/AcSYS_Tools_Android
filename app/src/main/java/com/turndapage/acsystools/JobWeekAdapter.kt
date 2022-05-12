@@ -2,13 +2,16 @@ package com.turndapage.acsystools
 
 import android.content.Context
 import android.os.StrictMode
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView.OnEditorActionListener
 import androidx.recyclerview.widget.RecyclerView
 import com.turndapage.acsystools.models.Job
 import com.turndapage.acsystools.models.JobWeek
@@ -19,10 +22,10 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.lang.NumberFormatException
 import java.time.DayOfWeek
 import java.time.LocalDate
 
+@DelicateCoroutinesApi
 class JobWeekAdapter(
     context: Context,
     var jobWeeks: ArrayList<JobWeek>,
@@ -124,34 +127,43 @@ class JobWeekAdapter(
             else
                 editText.setText(currentHours.toString())
 
-            editText.afterTextChanged {
-                val job = jobWeek.getJob(dayOfWeek)
-                if(it == "" && job != null) {
-                    deleteJob(job)
-                    jobWeek.jobs.remove(job)
-                } else {
-                    val hours = try { it.toDouble() } catch (ex: NumberFormatException) { 0.0 }
-                    if (job != null) {
-                        job.hours = hours
-                        updateJob(job)
-                    } else {
-                        insertJob(
-                            jobWeek.project,
-                            jobWeek.taskCode,
-                            hours,
-                            jobWeek.date.plusDays(index.toLong() - 1)
-                        )
-                        if(jobWeeks.last() == jobWeek) {
-                            // if this is the last one we need to add another placeholder job week
-                            jobWeeks.add(JobWeek())
+            editText.setOnEditorActionListener { v, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    val job = jobWeek.getJob(dayOfWeek)
+                    val text = v.text.toString()
+                    var delete = text == ""
+                    val hours = try {
+                        text.toDouble()
+                    } catch (ex: NumberFormatException) {
+                        delete = true
+                        0.0
+                    }
+                    if (delete && job != null) {
+                        deleteJob(job)
+                        jobWeek.jobs.remove(job)
+                    }
+                    else {
+                        if (job != null) {
+                            job.hours = hours
+                            updateJob(job)
+                        } else {
+                            insertJob(
+                                jobWeek,
+                                hours,
+                                jobWeek.date.plusDays(index.toLong() - 1)
+                            )
+                            if (jobWeeks.last() == jobWeek) {
+                                // if this is the last one we need to add another placeholder job week
+                                jobWeeks.add(JobWeek())
+                            }
                         }
                     }
                 }
+                false
             }
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private fun updateJob(job: Job) {
         GlobalScope.launch(Dispatchers.IO) {
             val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
@@ -160,17 +172,20 @@ class JobWeekAdapter(
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private fun insertJob(project: Project?, taskCode: TaskCode?, hours: Double, date: LocalDate) {
+    private fun insertJob(jobWeek: JobWeek, hours: Double, date: LocalDate) {
         GlobalScope.launch(Dispatchers.IO) {
             val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
             StrictMode.setThreadPolicy(policy)
-            if(project != null && taskCode != null && hours > 0.0)
-                MainActivity.connection.insertJob(project,taskCode,hours,date)
+            val project = jobWeek.project
+            val taskCode = jobWeek.taskCode
+            if(project != null && taskCode != null && hours > 0.0) {
+                val job = MainActivity.connection.insertJob(project, taskCode, hours, date)
+                if(job != null)
+                    jobWeek.jobs.add(job)
+            }
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private fun deleteJob(job: Job) {
         GlobalScope.launch(Dispatchers.IO) {
             val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()

@@ -2,80 +2,110 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <HorizontalScrollView
-        android:id="@+id/header_scroll"
-        android:scrollbars="none"
+    <LinearLayout
+        android:elevation="4dp"
+        android:id="@+id/header"
+        android:background="?attr/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical">
+        <TextView
+            style="@style/TextAppearance.Material3.HeadlineMedium"
+            android:text="@string/app_name"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    <HorizontalScrollView
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:id="@+id/header_scroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
         <LinearLayout
+            android:clipToPadding="false"
+            android:clipChildren="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
+
             <TextView
-                android:text="@string/project"
-                style="@style/job_week_header"/>
+                style="@style/job_week_header"
+                android:text="@string/project" />
+
             <TextView
-                android:text="@string/task"
-                style="@style/job_week_header"/>
+                style="@style/job_week_header"
+                android:text="@string/task" />
+
             <TextView
-                android:text="@string/sun"
-                style="@style/hours_size"/>
+                style="@style/hours_size"
+                android:text="@string/mon" />
+
             <TextView
-                android:text="@string/mon"
-                style="@style/hours_size"/>
+                style="@style/hours_size"
+                android:text="@string/tue" />
+
             <TextView
-                android:text="@string/tue"
-                style="@style/hours_size"/>
+                style="@style/hours_size"
+                android:text="@string/wed" />
+
             <TextView
-                android:text="@string/wed"
-                style="@style/hours_size"/>
+                style="@style/hours_size"
+                android:text="@string/thu" />
+
             <TextView
-                android:text="@string/thu"
-                style="@style/hours_size"/>
+                style="@style/hours_size"
+                android:text="@string/fri" />
+
             <TextView
-                android:text="@string/fri"
-                style="@style/hours_size"/>
+                style="@style/hours_size"
+                android:text="@string/sat" />
+
             <TextView
-                android:text="@string/sat"
-                style="@style/hours_size"/>
+                style="@style/hours_size"
+                android:text="@string/sun" />
         </LinearLayout>
 
     </HorizontalScrollView>
+    </LinearLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/dateButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header_scroll"/>
+        app:layout_constraintTop_toBottomOf="@+id/header" />
 
     <Button
         android:id="@+id/dateButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Date"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/forwardButton"
-        app:layout_constraintStart_toEndOf="@+id/backButton" />
+        app:layout_constraintStart_toEndOf="@+id/backButton"
+        tools:text="Date" />
 
     <ImageButton
         android:id="@+id/forwardButton"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:src="@drawable/ic_baseline_arrow_forward_24"
+        style="@style/toolbar_button"
         android:contentDescription="@string/back"
-        style="@style/toolbar_button"/>
+        android:src="@drawable/ic_baseline_arrow_forward_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageButton
         android:id="@+id/backButton"
+        style="@style/toolbar_button"
+        android:contentDescription="@string/forward"
         android:src="@drawable/ic_baseline_arrow_back_24"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:contentDescription="@string/forward"
-        style="@style/toolbar_button"/>
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,9 +7,14 @@ import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.StackView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.turndapage.acsystools.database.Connection
@@ -46,7 +51,29 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContentView(R.layout.activity_main)
+        val view = findViewById<ViewGroup>(R.id.main_layout)
+        val header = findViewById<LinearLayout>(R.id.header)
+        ViewCompat.setOnApplyWindowInsetsListener(view) { main, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+            // Apply the insets as a margin to the view. Here the system is setting
+            // only the bottom, left, and right dimensions, but apply whichever insets are
+            // appropriate to your layout. You can also update the view padding
+            // if that's more appropriate.
+            header.setPadding(0,insets.top,0,0)
+            /*main.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                leftMargin = insets.left
+                bottomMargin = insets.bottom
+                rightMargin = insets.right
+                topMargin = 0
+            }*/
+            main.setPadding(insets.left,0,insets.right,insets.bottom)
+
+            // Return CONSUMED if you don't want want the window insets to keep being
+            // passed down to descendant views.
+            WindowInsetsCompat.CONSUMED
+        }
 
         supportActionBar?.setBackgroundDrawable(ColorDrawable(getColor(R.color.secondary_600)))
 
@@ -68,25 +95,29 @@ class MainActivity : AppCompatActivity() {
             loadJobs()
         }
 
-        GlobalScope.launch(Dispatchers.IO) {
-            val policy = ThreadPolicy.Builder().permitAll().build()
-            StrictMode.setThreadPolicy(policy)
-            connection = Connection()
-            Log.d("debug: ", "Connected")
-            if(connection.login("jpage@acsysengineering.com", "ruffsbone")) {
-                Log.d("debug: ", "logged in")
-                projects = connection.getProjects()
-                tasks = connection.getTaskCodes()
-                Log.d("debug", "Got projects and task codes")
+        connection = Connection(object : Connection.ConnectionListener {
+            override fun onConnected() {
+                Log.d("debug: ", "Connected")
+                GlobalScope.launch(Dispatchers.IO) {
+                    val policy = ThreadPolicy.Builder().permitAll().build()
+                    StrictMode.setThreadPolicy(policy)
+                    if (connection.login("jpage@acsysengineering.com", "ruffsbone")) {
+                        Log.d("debug: ", "logged in")
+                        projects = connection.getProjects()
+                        tasks = connection.getTaskCodes()
+                        Log.d("debug", "Got projects and task codes")
 
-                jobWeeks = connection.getJobWeeks(now,projects,tasks)
+                        jobWeeks = connection.getJobWeeks(now, projects, tasks)
 
-                launch(Dispatchers.Main) {
-                    jobWeekAdapter = JobWeekAdapter(recyclerView.context,jobWeeks, projects, tasks)
-                    recyclerView.adapter = jobWeekAdapter
-                }
+                        launch(Dispatchers.Main) {
+                            jobWeekAdapter =
+                                JobWeekAdapter(recyclerView.context, jobWeeks, projects, tasks)
+                            recyclerView.adapter = jobWeekAdapter
+                        }
+                    }
+                }.start()
             }
-        }.start()
+        })
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -94,9 +125,11 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             jobWeeks = connection.getJobWeeks(now,projects,tasks)
             launch(Dispatchers.Main) {
-                jobWeekAdapter.jobWeeks = jobWeeks
-                Log.d("debug", "Found ${jobWeekAdapter.jobWeeks.size} jobs for list")
-                jobWeekAdapter.notifyDataSetChanged()
+                if(::jobWeekAdapter.isInitialized) {
+                    jobWeekAdapter.jobWeeks = jobWeeks
+                    Log.d("debug", "Found ${jobWeekAdapter.jobWeeks.size} jobs for list")
+                    jobWeekAdapter.notifyDataSetChanged()
+                }
             }
         }
     }
