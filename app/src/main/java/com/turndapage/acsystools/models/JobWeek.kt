@@ -4,10 +4,11 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 import java.time.DayOfWeek
+import java.time.temporal.ChronoField
 import kotlin.collections.ArrayList
 
 class JobWeek(val date: LocalDate, var project: Project?, var taskCode: TaskCode?, jobs: ArrayList<Job>) {
-    constructor() : this(LocalDate.now(), null,null, ArrayList())
+    constructor() : this(LocalDate.now().with(ChronoField.DAY_OF_WEEK, DayOfWeek.MONDAY.value.toLong()), null,null, ArrayList())
 
     var jobs = ArrayList<Job>()
     init {

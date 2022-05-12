@@ -1,6 +1,7 @@
 package com.turndapage.acsystools
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.StrictMode
@@ -55,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val view = findViewById<ViewGroup>(R.id.main_layout)
         val header = findViewById<LinearLayout>(R.id.header)
+
         ViewCompat.setOnApplyWindowInsetsListener(view) { main, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             // Apply the insets as a margin to the view. Here the system is setting

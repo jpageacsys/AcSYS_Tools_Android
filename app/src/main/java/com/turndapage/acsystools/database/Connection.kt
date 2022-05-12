@@ -42,6 +42,7 @@ class Connection(val connectionListener: ConnectionListener) {
         const val TASK_CODE_NAME = "task_code_name";
 
         // Jobs
+        //const val TABLE_JOB = "acsys_tools.jobs";
         const val TABLE_JOB = "jobs_test";
         const val JOB_ID = "job_id";
         const val JOB_USER = "job_user";
@@ -293,7 +294,7 @@ class Connection(val connectionListener: ConnectionListener) {
                     "${project.id}," +
                     "${taskCode.id}," +
                     "$hours," +
-                    "'${dateFormatter.format(date.plusDays(-1))}'," +
+                    "'${dateFormatter.format(date)}'," +
                     "$cost)", Statement.RETURN_GENERATED_KEYS)
 
             statement?.executeUpdate()

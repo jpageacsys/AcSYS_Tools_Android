@@ -24,6 +24,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.util.*
+import kotlin.collections.ArrayList
 
 @DelicateCoroutinesApi
 class JobWeekAdapter(
@@ -150,7 +152,7 @@ class JobWeekAdapter(
                             insertJob(
                                 jobWeek,
                                 hours,
-                                jobWeek.date.plusDays(index.toLong() - 1)
+                                LocalDate.from(jobWeek.date).plusDays(index.toLong() - 1)
                             )
                             if (jobWeeks.last() == jobWeek) {
                                 // if this is the last one we need to add another placeholder job week

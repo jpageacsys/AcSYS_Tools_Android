@@ -14,12 +14,17 @@
     <style name="job_week_spinner">
         <item name="android:layout_width">@dimen/spinner_width</item>
         <item name="android:layout_height">match_parent</item>
+        <item name="android:paddingStart">@dimen/header_padding</item>
+        <item name="android:paddingEnd">@dimen/header_padding</item>
+        <item name="android:paddingTop">@dimen/header_padding</item>
+        <item name="android:paddingBottom">@dimen/header_padding</item>
     </style>
     <style name="job_week_header" parent="job_week_spinner">
         <item name="android:textAlignment">center</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
         <item name="android:paddingStart">@dimen/header_padding</item>
         <item name="android:paddingEnd">@dimen/header_padding</item>
+        <item name="android:paddingTop">@dimen/header_padding</item>
+        <item name="android:paddingBottom">@dimen/header_padding</item>
     </style>
     <style name="toolbar_button">
         <item name="android:layout_width">wrap_content</item>
